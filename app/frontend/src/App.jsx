@@ -5,7 +5,7 @@ import LeadDashboard from './components/LeadDashboard'
 import LeadTable from './components/LeadTable'
 import LeadDetail from './components/LeadDetail'
 
-const API_BASE = '/_/backend'
+const API_BASE = import.meta.env.PROD ? '/_/backend' : '/api'
 const BUSINESS_ID = 'biz1' // In production, get from auth or config
 
 function Dashboard() {

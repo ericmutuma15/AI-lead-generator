@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const API_BASE = '/_/backend'
+const API_BASE = import.meta.env.PROD ? '/_/backend' : '/api'
 const BUSINESS_ID = 'biz1'
 
 function LeadCaptureForm() {

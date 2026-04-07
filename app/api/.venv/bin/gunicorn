@@ -1,0 +1,6 @@
+#!/home/shee/code/AI_lead_platform/app/api/.venv/bin/python3
+import sys
+from gunicorn.app.wsgiapp import run
+if __name__ == '__main__':
+    sys.argv[0] = sys.argv[0].removesuffix('.exe')
+    sys.exit(run())

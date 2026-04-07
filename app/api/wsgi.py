@@ -4,6 +4,7 @@ from models import db, Lead, Message, Interaction
 from config import Config
 from datetime import datetime, timedelta
 import os
+import random
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -12,64 +13,54 @@ db.init_app(app)
 
 application = app
 
-def seed_mock_data():
-    sample_leads = [
-        {
-            'business_id': 'biz1',
-            'name': 'Amina Hassan',
-            'phone': '+254712345678',
-            'interest': 'Order Tracking',
-            'budget': 'KES 2,000 - 5,000',
-            'source': 'Web',
-            'status': 'New',
-        },
-        {
-            'business_id': 'biz1',
-            'name': 'John Mwangi',
-            'phone': '+254700112233',
-            'interest': 'Product Inquiry',
-            'budget': 'KES 5,000 - 10,000',
-            'source': 'WhatsApp',
-            'status': 'Qualified',
-        },
-        {
-            'business_id': 'biz2',
-            'name': 'Sara Kimani',
-            'phone': '+254733445566',
-            'interest': 'Service Booking',
-            'budget': 'KES 10,000+',
-            'source': 'Web',
-            'status': 'Converted',
-        },
-    ]
-    if Lead.query.first() is None:
-        for lead_data in sample_leads:
-            lead = Lead(**lead_data)
-            db.session.add(lead)
-            db.session.flush()
-            
-            # Create interaction record
-            interaction = Interaction(lead_id=lead.id, last_contacted=datetime.utcnow())
-            db.session.add(interaction)
-            
-            # Add sample messages
-            messages = [
-                Message(lead_id=lead.id, message='Hi, I am interested in your service', sender='customer'),
-                Message(lead_id=lead.id, message='Thanks for reaching out! I\'d be happy to help.', sender='business'),
-            ]
-            db.session.add_all(messages)
-        
-        db.session.commit()
+# --- DEMO MOCK DATA ---
+NAMES = [
+    'Amina Hassan', 'John Mwangi', 'Sara Kimani', 'Peter Otieno', 'Grace Wanjiru',
+    'David Njoroge', 'Lucy Muthoni', 'Brian Ochieng', 'Mary Atieno', 'Samuel Kiptoo',
+    'Janet Wambui', 'Kevin Omondi', 'Cynthia Chebet', 'Pauline Naliaka', 'George Kariuki',
+    'Diana Wafula', 'Victor Mutiso', 'Emily Cherono', 'Dennis Kiplangat', 'Faith Mumo',
+    'James Mwangi', 'Mercy Wairimu', 'Patrick Otieno', 'Sharon Achieng', 'Josephine Njeri',
+    'Stephen Kimutai', 'Caroline Wambua', 'Felix Kipkoech', 'Eunice Nyambura', 'Collins Barasa',
+    'Beatrice Chebet', 'Alex Njuguna', 'Irene Wanjiku', 'Moses Kipruto', 'Agnes Atieno',
+    'Nicholas Kiptoo', 'Rosemary Wanjiru', 'Allan Oduor', 'Millicent Akinyi', 'Edwin Mutua',
+    'Purity Wambui', 'Oscar Kiprono', 'Lilian Chebet', 'Fredrick Otieno', 'Hannah Naliaka',
+    'Elijah Kipchumba', 'Gloria Wairimu', 'Martin Kimani', 'Phoebe Chepkemoi', 'Patrick Kiprono'
+]
+INTERESTS = [
+    'Order Tracking', 'Product Inquiry', 'Service Booking', 'Support', 'Demo Request',
+    'Bulk Order', 'Custom Quote', 'Partnership', 'Complaint', 'Feedback'
+]
+BUDGETS = [
+    'KES 2,000 - 5,000', 'KES 5,000 - 10,000', 'KES 10,000+', 'KES 1,000 - 2,000', 'KES 500 - 1,000'
+]
+SOURCES = ['Web', 'WhatsApp', 'Referral', 'Facebook', 'Instagram']
+STATUSES = ['New', 'Qualified', 'Converted']
 
-with app.app_context():
-    db.create_all()
-    seed_mock_data()
+MOCK_LEADS = []
+base_date = datetime(2026, 4, 1, 10, 0, 0)
+for i in range(50):
+    MOCK_LEADS.append({
+        'id': i + 1,
+        'business_id': 'biz1' if i % 2 == 0 else 'biz2',
+        'name': NAMES[i % len(NAMES)],
+        'phone': f'+2547{random.randint(10000000,99999999)}',
+        'interest': INTERESTS[i % len(INTERESTS)],
+        'budget': BUDGETS[i % len(BUDGETS)],
+        'source': SOURCES[i % len(SOURCES)],
+        'status': STATUSES[i % len(STATUSES)],
+        'created_at': (base_date + timedelta(days=i)).strftime('%Y-%m-%dT%H:%M:%S'),
+    })
+
+def get_demo_leads(business_id):
+    return [lead for lead in MOCK_LEADS if lead['business_id'] == business_id]
 
 @app.route('/api/leads', methods=['GET'])
 def get_leads():
-    business_id = request.args.get('business_id', 'default')
-    leads = Lead.query.filter_by(business_id=business_id).order_by(Lead.created_at.desc()).all()
-    return jsonify([lead.to_dict() for lead in leads])
+    business_id = request.args.get('business_id', 'biz1')
+    leads = get_demo_leads(business_id)
+    # Sort by created_at desc
+    leads = sorted(leads, key=lambda l: l['created_at'], reverse=True)
+    return jsonify(leads)
 
 @app.route('/api/leads', methods=['POST'])
 def create_lead():
@@ -88,36 +79,29 @@ def create_lead():
 
 @app.route('/api/insights', methods=['GET'])
 def insights():
-    business_id = request.args.get('business_id', 'default')
-    leads = Lead.query.filter_by(business_id=business_id).all()
+    business_id = request.args.get('business_id', 'biz1')
+    leads = get_demo_leads(business_id)
     total = len(leads)
     status_counts = {
-        'New': Lead.query.filter_by(business_id=business_id, status='New').count(),
-        'Qualified': Lead.query.filter_by(business_id=business_id, status='Qualified').count(),
-        'Converted': Lead.query.filter_by(business_id=business_id, status='Converted').count(),
+        'New': len([l for l in leads if l['status'] == 'New']),
+        'Qualified': len([l for l in leads if l['status'] == 'Qualified']),
+        'Converted': len([l for l in leads if l['status'] == 'Converted']),
     }
     interests = {}
     for lead in leads:
-        interests[lead.interest] = interests.get(lead.interest, 0) + 1
+        interests[lead['interest']] = interests.get(lead['interest'], 0) + 1
     top_interests = sorted(interests.items(), key=lambda x: x[1], reverse=True)[:5]
-    
     conversion_rate = 0
     if total > 0:
         conversion_rate = round((status_counts.get('Converted', 0) / total) * 100, 1)
-    
     # Lead trends (last 7 days)
-    week_ago = datetime.utcnow() - timedelta(days=7)
-    leads_last_week = Lead.query.filter(
-        Lead.business_id == business_id,
-        Lead.created_at >= week_ago
-    ).all()
-    
+    # For demo, just count all
     return jsonify({
         'totalLeads': total,
         'statusCounts': status_counts,
         'topInterests': [i[0] for i in top_interests],
         'conversionRate': conversion_rate,
-        'leadsLastWeek': len(leads_last_week),
+        'leadsLastWeek': total,
     })
 
 @app.route('/api/health', methods=['GET'])
@@ -155,7 +139,6 @@ def capture_lead():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
-    }), 201
 
 @app.route('/api/leads/<int:lead_id>/status', methods=['PATCH'])
 def update_lead_status(lead_id):
