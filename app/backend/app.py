@@ -124,30 +124,35 @@ def health():
 
 @app.route('/api/capture', methods=['POST'])
 def capture_lead():
-    data = request.get_json() or {}
-    lead = Lead(
-        business_id=data.get('business_id', 'default'),
-        name=data.get('name', 'Unknown'),
-        phone=data.get('phone', ''),
-        interest=data.get('interest', 'General Inquiry'),
-        budget=data.get('budget', None),
-        source=data.get('source', 'Web'),
-        status=data.get('status', 'New'),
-    )
-    db.session.add(lead)
-    db.session.flush()
+    try:
+        data = request.get_json() or {}
+        lead = Lead(
+            business_id=data.get('business_id', 'default'),
+            name=data.get('name', 'Unknown'),
+            phone=data.get('phone', ''),
+            interest=data.get('interest', 'General Inquiry'),
+            budget=data.get('budget', None),
+            source=data.get('source', 'Web'),
+            status=data.get('status', 'New'),
+        )
+        db.session.add(lead)
+        db.session.flush()
 
-    interaction = Interaction(lead_id=lead.id, last_contacted=datetime.utcnow())
-    db.session.add(interaction)
-    db.session.commit()
+        interaction = Interaction(lead_id=lead.id, last_contacted=datetime.utcnow())
+        db.session.add(interaction)
+        db.session.commit()
 
-    auto_replies = {
-        'WhatsApp': 'Thanks for your inquiry! Our team will respond shortly.',
-        'Web': 'Thanks for reaching out! We have saved your request.',
-    }
-    return jsonify({
-        'lead': lead.to_dict(),
-        'autoReply': auto_replies.get(lead.source, auto_replies['Web']),
+        auto_replies = {
+            'WhatsApp': 'Thanks for your inquiry! Our team will respond shortly.',
+            'Web': 'Thanks for reaching out! We have saved your request.',
+        }
+        return jsonify({
+            'lead': lead.to_dict(),
+            'autoReply': auto_replies.get(lead.source, auto_replies['Web']),
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
     }), 201
 
 @app.route('/api/leads/<int:lead_id>/status', methods=['PATCH'])
