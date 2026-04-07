@@ -1,6 +1,7 @@
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 function LeadTable({ leads }) {
+  const navigate = useNavigate()
   return (
     <section className="rounded-[2rem] bg-slate-900/80 p-6 shadow-2xl shadow-slate-950/20 ring-1 ring-white/10 backdrop-blur-xl">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -34,23 +35,22 @@ function LeadTable({ leads }) {
                 <tr
                   key={lead.id}
                   className="border-t border-white/10 transition hover:bg-slate-800/80 cursor-pointer"
+                  onClick={() => navigate(`/leads/${lead.id}`)}
                 >
-                  <Link to={`/leads/${lead.id}`} className="contents">
-                    <td className="px-6 py-4 text-slate-100 font-medium">{lead.name}</td>
-                    <td className="px-6 py-4 text-slate-300">{lead.phone}</td>
-                    <td className="px-6 py-4 text-slate-300">{lead.interest}</td>
-                    <td className="px-6 py-4 text-slate-300">{lead.source}</td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                        lead.status === 'Converted' ? 'bg-emerald-500/20 text-emerald-300' :
-                        lead.status === 'Qualified' ? 'bg-blue-500/20 text-blue-300' :
-                        'bg-amber-500/20 text-amber-300'
-                      }`}>
-                        {lead.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-slate-300">{new Date(lead.created_at).toLocaleString('en-KE', { timeZone: 'Africa/Nairobi' })}</td>
-                  </Link>
+                  <td className="px-6 py-4 text-slate-100 font-medium">{lead.name}</td>
+                  <td className="px-6 py-4 text-slate-300">{lead.phone}</td>
+                  <td className="px-6 py-4 text-slate-300">{lead.interest}</td>
+                  <td className="px-6 py-4 text-slate-300">{lead.source}</td>
+                  <td className="px-6 py-4">
+                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                      lead.status === 'Converted' ? 'bg-emerald-500/20 text-emerald-300' :
+                      lead.status === 'Qualified' ? 'bg-blue-500/20 text-blue-300' :
+                      'bg-amber-500/20 text-amber-300'
+                    }`}>
+                      {lead.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-slate-300">{new Date(lead.created_at).toLocaleString('en-KE', { timeZone: 'Africa/Nairobi' })}</td>
                 </tr>
               ))
             )}

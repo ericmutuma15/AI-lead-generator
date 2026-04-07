@@ -209,6 +209,8 @@ def get_interaction(lead_id):
     interaction = Interaction.query.filter_by(lead_id=lead_id).first_or_404()
     return jsonify(interaction.to_dict())
 
+application = app
+
 @app.route('/api/leads/<int:lead_id>/interaction', methods=['PATCH'])
 def update_interaction(lead_id):
     business_id = request.args.get('business_id', 'default')
