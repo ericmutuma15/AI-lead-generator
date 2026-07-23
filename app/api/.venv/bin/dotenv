@@ -1,4 +1,4 @@
-#!/home/shee/code/AI_lead_platform/app/api/.venv/bin/python3
+#!/home/mutuma808/code/AI-lead-generator/app/api/.venv/bin/python
 import sys
 from dotenv.__main__ import cli
 if __name__ == '__main__':

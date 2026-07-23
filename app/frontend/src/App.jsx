@@ -1,73 +1,56 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
-import { useEffect, useState } from 'react'
-import LeadCaptureForm from './components/LeadCaptureForm'
-import LeadDashboard from './components/LeadDashboard'
-import LeadTable from './components/LeadTable'
-import LeadDetail from './components/LeadDetail'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Suspense, lazy } from "react";
 
-const API_BASE = import.meta.env.PROD ? '/_/backend' : '/api'
-const BUSINESS_ID = 'biz1' // In production, get from auth or config
+import Layout from "./components/layout/Layout";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+import { AuthProvider } from "./contexts/AuthContext";
 
-function Dashboard() {
-  const [leads, setLeads] = useState([])
-  const [insights, setInsights] = useState({})
-
-  const refreshData = () => {
-    fetch(`${API_BASE}/leads?business_id=${BUSINESS_ID}`)
-      .then(res => res.json())
-      .then(setLeads)
-
-    fetch(`${API_BASE}/insights?business_id=${BUSINESS_ID}`)
-      .then(res => res.json())
-      .then(setInsights)
-  }
-
-  useEffect(() => {
-    refreshData()
-  }, [])
-
-  return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 w-full">
-      <div className="w-full px-4 py-8 sm:px-6 lg:px-8">
-        <header className="mb-8 rounded-3xl bg-slate-900/80 p-8 shadow-2xl shadow-slate-950/20 backdrop-blur-xl ring-1 ring-white/10">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <p className="text-sm uppercase tracking-[0.4em] text-cyan-300/80">AI Lead Platform</p>
-              <h1 className="mt-3 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-                Lead Capture & Insights
-              </h1>
-              <p className="mt-4 max-w-2xl text-slate-300">
-                View business leads, statuses, and interest trends with a clean, modern dashboard.
-              </p>
-            </div>
-            <Link
-              to="/capture"
-              className="inline-flex items-center justify-center rounded-full bg-cyan-400 px-6 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:-translate-y-0.5 hover:bg-cyan-300"
-            >
-              Capture a lead
-            </Link>
-          </div>
-        </header>
-
-        <main className="space-y-6">
-          <LeadDashboard insights={insights} leads={leads} />
-          <LeadTable leads={leads} />
-        </main>
-      </div>
-    </div>
-  )
-}
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Leads = lazy(() => import("./pages/Leads"));
+const Capture = lazy(() => import("./pages/Capture"));
+const Analytics = lazy(() => import("./pages/Analytics"));
+const Settings = lazy(() => import("./pages/Settings"));
+const LeadDetails = lazy(() => import("./pages/LeadDetails"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
 
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/capture" element={<LeadCaptureForm />} />
-        <Route path="/leads/:leadId" element={<LeadDetail />} />
-      </Routes>
+      <AuthProvider>
+        <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-slate-950 text-sm text-slate-300">Loading workspace…</div>}>
+          <Routes>
+            <Route path="login" element={<Login />} />
+            <Route path="register" element={<Register />} />
+
+            <Route element={<ProtectedRoute />}>
+              <Route element={<Layout />}>
+                <Route index element={<Dashboard />} />
+                <Route path="leads" element={<Leads />} />
+                <Route path="capture" element={<Capture />} />
+                <Route path="analytics" element={<Analytics />} />
+                <Route path="settings" element={<Settings />} />
+                <Route path="leads/:leadId" element={<LeadDetails />} />
+              </Route>
+            </Route>
+
+            <Route
+              path="*"
+              element={
+                <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.15),transparent_30%),linear-gradient(180deg,#020617_0%,#0f172a_100%)] px-6 text-center text-slate-100">
+                  <div className="max-w-md rounded-[32px] border border-white/10 bg-white/10 p-10 backdrop-blur-xl">
+                    <p className="text-sm uppercase tracking-[0.35em] text-cyan-300">404</p>
+                    <h1 className="mt-3 text-4xl font-semibold">We hit a dead end.</h1>
+                    <p className="mt-3 text-sm leading-7 text-slate-300">The page you requested is not in the CRM workspace yet.</p>
+                  </div>
+                </div>
+              }
+            />
+          </Routes>
+        </Suspense>
+      </AuthProvider>
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;

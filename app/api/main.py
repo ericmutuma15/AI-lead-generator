@@ -1,1 +1,2 @@
-from wsgi import application
+from wsgi import application, app
+from models import db
