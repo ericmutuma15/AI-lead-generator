@@ -1,15 +1,12 @@
 {
   "rewrites": [
-    { "source": "/*", "destination": "/index.html" }
-  ],
-  "headers": [
     {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "https://ai-leads-gen.vercel.app" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, PUT, PATCH, DELETE, OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
-      ]
+      "source": "/_/backend/:path*",
+      "destination": "https://ai-lead-generator-7uou.onrender.com/api/:path*"
+    },
+    {
+      "source": "/*",
+      "destination": "/index.html"
     }
   ]
 }

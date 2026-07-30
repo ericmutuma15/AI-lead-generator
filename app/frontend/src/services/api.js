@@ -1,8 +1,8 @@
 const rawApiBase = import.meta.env.PROD
-  ? import.meta.env.VITE_API_BASE ?? "https://ai-lead-generator-7uou.onrender.com"
+  ? import.meta.env.VITE_API_BASE ?? "https://ai-lead-generator-7uou.onrender.com/api"
   : "/api";
 
-export const API_BASE = rawApiBase.replace(/\/+$|^\s+|\s+$/g, "");
+export const API_BASE = rawApiBase.replace(/\/+$/g, "");
 
 function getAuthHeaders() {
   const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
