@@ -1,5 +1,5 @@
 services:
-  - type: web
+  - type: static
     name: ai-lead-generator-frontend
     env: static
     staticPublishPath: dist
