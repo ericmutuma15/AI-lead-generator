@@ -26,7 +26,11 @@ from models import (
 
 app = Flask(__name__)
 app.config.from_object(Config)
-CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+# Configure CORS origins. Use `CORS_ORIGINS` env var (comma-separated) in production.
+cors_origins = os.getenv("CORS_ORIGINS", "https://ai-leads-gen.vercel.app,https://ai-lead-generator-7uou.onrender.com")
+cors_origins = [o.strip() for o in cors_origins.split(",") if o.strip()]
+# Restrict CORS to API routes and allow credentials.
+CORS(app, resources={r"/api/*": {"origins": cors_origins}}, supports_credentials=True)
 db.init_app(app)
 Migrate(app, db)
 
