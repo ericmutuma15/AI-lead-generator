@@ -5,6 +5,10 @@
       "destination": "https://ai-lead-generator-7uou.onrender.com/api/:path*"
     },
     {
+      "source": "/api/:path*",
+      "destination": "https://ai-lead-generator-7uou.onrender.com/api/:path*"
+    },
+    {
       "source": "/*",
       "destination": "/index.html"
     }
