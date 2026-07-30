@@ -1,5 +1,5 @@
 const API_BASE = import.meta.env.PROD
-  ? "/_/backend"
+  ? (import.meta.env.VITE_API_BASE || "/_/backend")
   : "/api";
 
 function getAuthHeaders() {
