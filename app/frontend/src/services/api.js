@@ -16,7 +16,7 @@ async function request(endpoint, options = {}) {
     ...(options.headers || {}),
   };
 
-  const route = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+  const route = endpoint.startsWith("/") ? endpoint : `${endpoint}`;
   const response = await fetch(`${API_BASE}${route}`, {
     ...options,
     headers,
