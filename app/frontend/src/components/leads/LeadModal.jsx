@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { FiX, FiUserPlus } from "react-icons/fi";
-
-const API_BASE = import.meta.env.PROD ? "/_/backend" : "/api";
+import { API_BASE } from "../../services/api.js";
 
 const BUSINESS_ID = "biz1";
 

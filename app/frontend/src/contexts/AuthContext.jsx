@@ -1,9 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE } from "../services/api.js";
 
 const AuthContext = createContext(null);
-
-const API_BASE = import.meta.env.PROD ? "/_/backend" : "/api";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);

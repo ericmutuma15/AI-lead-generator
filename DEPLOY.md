@@ -15,7 +15,17 @@ To test locally in the backend venv:
 cd app/api
 source .venv/bin/activate
 export DATABASE_URL="postgresql://postgres:password@host:5432/postgres"
+python seed_db.py
 ./gunicorn_start.sh
+```
+
+To add demo data to Postgres locally or in production, run:
+
+```bash
+cd app/api
+source .venv/bin/activate
+export DATABASE_URL="postgresql://postgres:password@host:5432/postgres"
+python seed_db.py
 ```
 
 To build the frontend for production (Vite will pick up `.env.production`):

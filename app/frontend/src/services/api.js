@@ -1,6 +1,8 @@
-const API_BASE = import.meta.env.PROD
-  ? (import.meta.env.VITE_API_BASE || "/_/backend")
+const rawApiBase = import.meta.env.PROD
+  ? import.meta.env.VITE_API_BASE ?? "https://ai-lead-generator-7uou.onrender.com"
   : "/api";
+
+export const API_BASE = rawApiBase.replace(/\/+$|^\s+|\s+$/g, "");
 
 function getAuthHeaders() {
   const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
@@ -14,7 +16,8 @@ async function request(endpoint, options = {}) {
     ...(options.headers || {}),
   };
 
-  const response = await fetch(`${API_BASE}${endpoint}`, {
+  const route = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+  const response = await fetch(`${API_BASE}${route}`, {
     ...options,
     headers,
   });
