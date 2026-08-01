@@ -13,10 +13,14 @@ export default function Layout() {
     <div data-app-shell className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_24%),linear-gradient(180deg,#f8fafc_0%,#eef2ff_100%)] text-slate-900 dark:bg-[radial-gradient(circle_at_top,rgba(8,145,178,0.18),transparent_24%),linear-gradient(180deg,#020617_0%,#0f172a_100%)] dark:text-slate-100">
       <MobileSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="flex min-h-screen">
-        <aside className={`hidden lg:flex transition-all duration-300 ease-in-out ${sidebarCollapsed ? "w-24" : "w-72"}`}>
-          <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed((prev) => !prev)} />
-        </aside>
+      <div className="flex min-h-screen flex-col">
+        <div className="hidden lg:block">
+          <Sidebar
+            collapsed={sidebarCollapsed}
+            onToggle={() => setSidebarCollapsed((prev) => !prev)}
+            variant="top"
+          />
+        </div>
 
         <div className="flex min-h-screen flex-1 flex-col overflow-hidden">
           <header className="sticky top-0 z-50 shrink-0">

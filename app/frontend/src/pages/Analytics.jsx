@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { FiBarChart2, FiTrendingUp, FiUsers, FiTarget } from "react-icons/fi";
-import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, BarChart, Bar, PieChart, Pie, Cell, Legend } from "recharts";
+import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, BarChart, Bar, PieChart, Pie, Cell, Legend, LineChart, Line } from "recharts";
 import Card from "../components/ui/Card";
 import PageHeader from "../components/ui/PageHeader";
 import { getLeads } from "../services/leads";
@@ -52,14 +52,35 @@ export default function Analytics() {
       return acc;
     }, {});
 
+    const funnelTrend = leads.reduce((acc, lead) => {
+      const month = new Date(lead.created_at || Date.now()).toLocaleString("en", { month: "short" });
+      if (!acc[month]) {
+        acc[month] = { name: month, New: 0, Qualified: 0, Converted: 0 };
+      }
+
+      if (lead.status === "New") {
+        acc[month].New += 1;
+      } else if (lead.status === "Qualified") {
+        acc[month].Qualified += 1;
+      } else if (lead.status === "Converted") {
+        acc[month].Converted += 1;
+      }
+
+      return acc;
+    }, {});
+
     const trendPoints = Object.entries(byMonth).map(([name, value]) => ({ name, value }));
+    const funnelTrendPoints = Object.values(funnelTrend).sort((a, b) => {
+      const monthOrder = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      return monthOrder.indexOf(a.name) - monthOrder.indexOf(b.name);
+    });
     const sourceData = Object.entries(leads.reduce((acc, lead) => {
       const source = lead.source || "Unknown";
       acc[source] = (acc[source] || 0) + 1;
       return acc;
     }, {})).map(([name, value]) => ({ name, value }));
 
-    return { total, converted, newLeads, rate, trendPoints, sourceData };
+    return { total, converted, newLeads, rate, trendPoints, funnelTrendPoints, sourceData };
   }, [leads]);
 
   const statCards = [
@@ -144,18 +165,20 @@ export default function Analytics() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-        <Card title="Conversion Trends" subtitle="Status progression across the funnel" className="min-h-[300px]">
+        <Card title="Pipeline Momentum" subtitle="New, qualified, and converted leads over time" className="min-h-[300px]">
           <div className="h-72">
             {loading ? <div className="h-full animate-pulse rounded-2xl bg-slate-100" /> : (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={[{ name: "New", value: summary.newLeads }, { name: "Qualified", value: leads.filter((item) => item.status === "Qualified").length }, { name: "Converted", value: summary.converted }]}> 
+                <LineChart data={summary.funnelTrendPoints}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
                   <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ fill: axisText }} />
                   <YAxis tickLine={false} axisLine={false} tick={{ fill: axisText }} />
                   <Tooltip contentStyle={tooltipStyles} />
                   <Legend />
-                  <Bar dataKey="value" radius={[10, 10, 0, 0]} fill="#2563eb" name="Count" />
-                </BarChart>
+                  <Line type="monotone" dataKey="New" stroke="#2563eb" strokeWidth={2.5} dot={{ r: 2 }} name="New" />
+                  <Line type="monotone" dataKey="Qualified" stroke="#14b8a6" strokeWidth={2.5} dot={{ r: 2 }} name="Qualified" />
+                  <Line type="monotone" dataKey="Converted" stroke="#8b5cf6" strokeWidth={2.5} dot={{ r: 2 }} name="Converted" />
+                </LineChart>
               </ResponsiveContainer>
             )}
           </div>
@@ -175,6 +198,26 @@ export default function Analytics() {
             <p className="mt-2 text-2xl font-semibold text-slate-900">12</p>
           </div>
         </Card>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+        <Card title="Conversion Trends" subtitle="Status progression across the funnel" className="min-h-[300px]">
+          <div className="h-72">
+            {loading ? <div className="h-full animate-pulse rounded-2xl bg-slate-100" /> : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={[{ name: "New", value: summary.newLeads }, { name: "Qualified", value: leads.filter((item) => item.status === "Qualified").length }, { name: "Converted", value: summary.converted }]}> 
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
+                  <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ fill: axisText }} />
+                  <YAxis tickLine={false} axisLine={false} tick={{ fill: axisText }} />
+                  <Tooltip contentStyle={tooltipStyles} />
+                  <Legend />
+                  <Bar dataKey="value" radius={[10, 10, 0, 0]} fill="#2563eb" name="Count" />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </Card>
+
       </div>
     </div>
   );

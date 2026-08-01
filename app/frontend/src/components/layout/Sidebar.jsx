@@ -9,13 +9,15 @@ const menuItems = [
   { title: "Settings", icon: FiSettings, path: "/settings" },
 ];
 
-export default function Sidebar({ collapsed, onToggle }) {
+export default function Sidebar({ collapsed, onToggle, variant = "default" }) {
+  const isTopBar = variant === "top";
+
   return (
-    <div className="flex h-screen w-full flex-col border-r border-slate-200/80 bg-white/90 shadow-[12px_0_40px_-20px_rgba(15,23,42,0.18)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
-      <div className="flex h-20 items-center justify-between border-b border-slate-200/80 px-5 dark:border-slate-800">
+    <div className={`${isTopBar ? "border-b border-slate-200/80 bg-white/90 shadow-[0_10px_30px_-20px_rgba(15,23,42,0.22)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/90" : "flex h-screen w-full flex-col border-r border-slate-200/80 bg-white/90 shadow-[12px_0_40px_-20px_rgba(15,23,42,0.18)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/90"}`}>
+      <div className={`flex ${isTopBar ? "h-16 items-center justify-between px-4 sm:px-6" : "h-20 items-center justify-between border-b border-slate-200/80 px-5 dark:border-slate-800"}`}>
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/20">
-            <FiCpu size={22} />
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/20">
+            <FiCpu size={20} />
           </div>
 
           {!collapsed && (
@@ -31,13 +33,13 @@ export default function Sidebar({ collapsed, onToggle }) {
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 py-5">
-        <nav className="space-y-1.5">
+      <div className={`${isTopBar ? "px-2 py-2" : "flex-1 overflow-y-auto px-3 py-5"}`}>
+        <nav className={`${isTopBar ? "flex flex-wrap items-center gap-2" : "space-y-1.5"}`}>
           {menuItems.map((item) => {
             const Icon = item.icon;
             return (
               <NavLink key={item.path} to={item.path} end={item.path === "/"}
-                className={({ isActive }) => `group flex items-center gap-3 rounded-2xl px-3 py-3 font-medium transition-all duration-200 ${isActive ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"}`}>
+                className={({ isActive }) => `${isTopBar ? "flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium" : "group flex items-center gap-3 rounded-2xl px-3 py-3 font-medium"} transition-all duration-200 ${isActive ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"}`}>
                 <Icon className="flex-shrink-0" size={18} />
                 {!collapsed && <span>{item.title}</span>}
               </NavLink>
@@ -46,17 +48,19 @@ export default function Sidebar({ collapsed, onToggle }) {
         </nav>
       </div>
 
-      <div className="border-t border-slate-200/80 p-4 dark:border-slate-800">
-        <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3 dark:bg-slate-900">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-sm font-semibold text-white">A</div>
-          {!collapsed && (
-            <div className="overflow-hidden">
-              <p className="truncate font-semibold text-slate-900 dark:text-slate-100">Admin</p>
-              <p className="truncate text-xs text-slate-500 dark:text-slate-400">Operations Hub</p>
-            </div>
-          )}
+      {!isTopBar && (
+        <div className="border-t border-slate-200/80 p-4 dark:border-slate-800">
+          <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3 dark:bg-slate-900">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-sm font-semibold text-white">A</div>
+            {!collapsed && (
+              <div className="overflow-hidden">
+                <p className="truncate font-semibold text-slate-900 dark:text-slate-100">Admin</p>
+                <p className="truncate text-xs text-slate-500 dark:text-slate-400">Operations Hub</p>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

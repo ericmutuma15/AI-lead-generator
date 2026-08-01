@@ -10,7 +10,7 @@ import EmptyState from "../components/ui/EmptyState";
 import Card from "../components/ui/Card";
 
 export default function Dashboard() {
-  const { stats, leads, loading } = useDashboard();
+  const { stats, leads, activities, loading } = useDashboard();
 
   if (loading) {
     return (
@@ -62,7 +62,7 @@ export default function Dashboard() {
         <div className="xl:col-span-2">
           <LeadChart leads={leads} />
         </div>
-        <ActivityFeed leads={leads} />
+        <ActivityFeed activities={activities} leads={leads} />
       </div>
 
       <div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { getAnalytics } from "../services/analytics";
+import { getActivities, getAnalytics } from "../services/analytics";
 
 import { getLeads } from "../services/leads";
 
@@ -9,21 +9,23 @@ export default function useDashboard() {
 
   const [leads, setLeads] = useState([]);
 
+  const [activities, setActivities] = useState([]);
+
   const [loading, setLoading] = useState(true);
 
   const loadDashboard = async () => {
     try {
       setLoading(true);
 
-      const [analyticsData, leadsData] = await Promise.all([
+      const [analyticsData, leadsData, activitiesData] = await Promise.all([
         getAnalytics(),
-
         getLeads(),
+        getActivities(),
       ]);
 
       setStats(analyticsData || {});
-
       setLeads(leadsData || []);
+      setActivities(activitiesData || []);
     } catch (error) {
       console.error("Dashboard loading failed:", error);
     } finally {
@@ -37,11 +39,9 @@ export default function useDashboard() {
 
   return {
     stats,
-
     leads,
-
+    activities,
     loading,
-
     refresh: loadDashboard,
   };
 }
